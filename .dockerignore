@@ -1,0 +1,5 @@
+.env
+backups
+test-results
+__pycache__
+.git

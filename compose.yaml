@@ -1,0 +1,51 @@
+name: study-messenger
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: messenger
+      POSTGRES_USER: messenger
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Run scripts/setup.ps1 first}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U messenger -d messenger"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  backup:
+    image: postgres:16-alpine
+    environment:
+      PGPASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./backups:/backups
+      - ./scripts/weekly-backup.sh:/weekly-backup.sh:ro
+    entrypoint: ["sh", "/weekly-backup.sh"]
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://messenger:${DB_PASSWORD}@db:5432/messenger
+      JWT_SECRET: ${JWT_SECRET:?Run scripts/setup.ps1 first}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Run scripts/setup.ps1 first}
+    ports:
+      - "127.0.0.1:8443:8443"
+    volumes:
+      - certificates:/certs
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,ssl; urllib.request.urlopen('https://localhost:8443/api/health',context=ssl._create_unverified_context())"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+volumes:
+  postgres_data:
+  certificates:

@@ -1,0 +1,36 @@
+CREATE TABLE IF NOT EXISTS users (
+ id SERIAL PRIMARY KEY, login VARCHAR(40) UNIQUE NOT NULL,
+ first_name VARCHAR(80) NOT NULL, last_name VARCHAR(80) NOT NULL,
+ password_hash TEXT NOT NULL, role TEXT NOT NULL CHECK(role IN ('user','admin')),
+ blocked BOOLEAN NOT NULL DEFAULT FALSE, deleted BOOLEAN NOT NULL DEFAULT FALSE,
+ failures INTEGER NOT NULL DEFAULT 0, locked_until TIMESTAMPTZ,
+ token_version INTEGER NOT NULL DEFAULT 0, public_key JSONB, vault JSONB,
+ last_seen TIMESTAMPTZ, created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS sessions (
+ id UUID PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id), expires_at TIMESTAMPTZ NOT NULL
+);
+CREATE TABLE IF NOT EXISTS chats (
+ id SERIAL PRIMARY KEY, title VARCHAR(100) NOT NULL, is_group BOOLEAN NOT NULL,
+ revision INTEGER NOT NULL DEFAULT 1, created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS members (
+ chat_id INTEGER REFERENCES chats(id), user_id INTEGER REFERENCES users(id),
+ is_admin BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY(chat_id,user_id)
+);
+CREATE TABLE IF NOT EXISTS messages (
+ id UUID PRIMARY KEY, chat_id INTEGER NOT NULL REFERENCES chats(id),
+ sender_id INTEGER NOT NULL REFERENCES users(id), payload JSONB,
+ reply_to UUID REFERENCES messages(id), deleted BOOLEAN NOT NULL DEFAULT FALSE,
+ created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS messages_chat_time ON messages(chat_id,created_at);
+CREATE TABLE IF NOT EXISTS receipts (
+ message_id UUID REFERENCES messages(id), user_id INTEGER REFERENCES users(id),
+ delivered_at TIMESTAMPTZ NOT NULL DEFAULT now(), read_at TIMESTAMPTZ,
+ PRIMARY KEY(message_id,user_id)
+);
+CREATE TABLE IF NOT EXISTS audit (
+ id SERIAL PRIMARY KEY, actor_id INTEGER REFERENCES users(id), event TEXT NOT NULL,
+ target_id INTEGER, created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

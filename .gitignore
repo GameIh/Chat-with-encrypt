@@ -1,0 +1,7 @@
+.env
+./work
+backups/*
+!backups/.gitkeep
+__pycache__/
+.pytest_cache/
+test-results/

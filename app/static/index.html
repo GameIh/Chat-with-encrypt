@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Мессенджер</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <div id="notice" role="status" hidden></div>
+  <main id="login-screen" class="login-wrap">
+    <section class="login-card">
+      <p class="app-name">Мессенджер</p>
+      <h1>Вход</h1>
+      <form id="login-form">
+        <label>Логин<input id="login" autocomplete="username" required maxlength="40"></label>
+        <label>Пароль<input id="password" type="password" autocomplete="current-password" required maxlength="200"></label>
+        <button class="primary" type="submit">Войти</button>
+        <p id="login-error" class="error" role="alert"></p>
+      </form>
+      <p class="hint">Учётную запись и пароль можно получить у администратора.</p>
+    </section>
+  </main>
+  <main id="key-screen" class="login-wrap" hidden>
+    <section class="login-card">
+      <p class="app-name">Мессенджер</p>
+      <h1 id="key-title">Открыть переписку</h1>
+      <p id="key-help" class="muted"></p>
+      <form id="key-form">
+        <label>Секретная фраза<input id="phrase" type="password" required minlength="12" autocomplete="off"></label>
+        <label id="phrase-repeat-label" hidden>Повторите фразу<input id="phrase-repeat" type="password" autocomplete="off"></label>
+        <button class="primary">Открыть мессенджер</button>
+        <p id="key-error" class="error" role="alert"></p>
+      </form>
+      <p class="hint">Администратор может сбросить пароль входа, но не восстановить секретную фразу.</p>
+      <button id="key-back" class="secondary">Вернуться ко входу</button>
+    </section>
+  </main>
+  <main id="workspace" hidden>
+    <div class="layout">
+      <aside class="sidebar" aria-label="Список чатов">
+        <div class="sidebar-head">
+          <div class="section-title">
+            <h1>Чаты</h1>
+            <div class="chat-tools">
+              <button id="contacts-btn">Контакты</button>
+              <button id="group-btn" class="icon-button" aria-label="Создать группу" title="Создать группу">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M16 4a4 4 0 0 1 0 8M20 15v6M17 18h6"/><circle cx="9" cy="7" r="4"/></svg>
+              </button>
+            </div>
+          </div>
+          <input id="chat-search" placeholder="Поиск" aria-label="Поиск чата">
+        </div>
+        <div id="chat-list"></div>
+        <div class="account">
+          <span id="identity"></span>
+          <span id="connection" role="status">Подключено</span>
+          <div class="account-actions">
+            <button id="security-btn">Мой ключ</button>
+            <button id="admin-btn" hidden>Управление</button>
+            <button id="logout-btn">Выйти</button>
+          </div>
+        </div>
+      </aside>
+      <section class="conversation" aria-label="Переписка">
+        <div id="empty-chat" class="empty"><p>Выберите чат или найдите собеседника в контактах.</p></div>
+        <div id="active-chat" hidden>
+          <div class="chat-header">
+            <button id="back-chats" class="icon-button" aria-label="Назад к чатам" title="Назад к чатам">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
+            </button>
+            <div class="chat-heading"><h2 id="chat-title"></h2><p id="chat-subtitle"></p></div>
+            <button id="members-btn">Участники</button>
+          </div>
+          <button id="older-btn" class="older">Загрузить более ранние сообщения</button>
+          <div id="messages" aria-live="polite"></div>
+          <div class="composer">
+            <div id="reply-banner" hidden></div>
+            <form id="message-form">
+              <label class="attach" title="Прикрепить файл до 8 МБ">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 11-8.5 8.5a6 6 0 0 1-8.5-8.5L13 2a4 4 0 0 1 5.7 5.7l-9 9a2 2 0 0 1-2.8-2.8l8.5-8.5"/></svg>
+                <input id="file" type="file" aria-label="Прикрепить файл">
+              </label>
+              <textarea id="text" maxlength="5000" rows="1" placeholder="Сообщение" aria-label="Текст сообщения"></textarea>
+              <button class="primary" id="send-btn">Отправить</button>
+            </form>
+            <div class="composer-foot"><span id="file-name"></span><button id="clear-file" hidden>Убрать файл</button></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <dialog id="dialog">
+    <header><h2 id="dialog-title"></h2><button id="dialog-close" aria-label="Закрыть">×</button></header>
+    <div id="dialog-content"></div>
+  </dialog>
+</body>
+</html>
